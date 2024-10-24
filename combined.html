@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Survey Quiz</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <style>
+      #quiz-container * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      #filter {
+        display: flex;
+        gap: 10px;
+        justify-content: start;
+      }
+
+      #quiz-container #survey-list-page #filter .active {
+        color: #4b0a6b;
+        border: 1px solid #4b0a6b;
+        background-color: transparent;
+        padding: 10px 20px;
+      }
+
+      #quiz-container #edu,
+      #quiz-container #ent {
+        color: white;
+        border: 1px solid #4b0a6b;
+        background-color: #4b0a6b;
+        padding: 10px 20px;
+      }
+
+      #quiz-container {
+        width: 100vw;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: white;
+        font-family: 'Public Sans', sans-serif;
+      }
+
+      .game-started {
+        position: fixed !important;
+        top: 0 !important;
+        z-index: 100 !important;
+        height: 100vh !important;
+      }
+
+      /* Progress Bar Styles */
+      #progress-container {
+        width: 100%;
+        background-color: #fcebff;
+        border-radius: 13px;
+        /* margin-bottom: 20px; */
+        overflow: hidden;
+        height: 10px;
+      }
+
+      #progress-bar {
+        height: 10px;
+        background-color: #a532d3;
+        width: 0%; /* Initial progress is 0 */
+        border-radius: 13px;
+        transition: width 0.4s ease;
+      }
+
+      #survey-list-page {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        width: 70%;
+      }
+
+      #survey-list {
+        width: 70%;
+
+        display: grid;
+        gap: 20px;
+        grid-template-columns: auto auto auto;
+        justify-content: start;
+      }
+
+      #survey-list > div {
+        padding-top: 20px;
+        background-color: #dbfbce;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      #survey-list img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        margin: auto;
+        padding-bottom: 10px;
+        background-color: #c3f1b0;
+        padding: 20px;
+        border-radius: 50%;
+      }
+
+      #survey-list h5 {
+        font-size: 1em;
+        font-weight: 700;
+        line-height: 1em;
+        background-color: #efffe9;
+        color: #406332;
+        padding: 20px;
+        border-radius: 0 0 10px 10px;
+      }
+
+      #welcome-screen {
+        height: 100vh;
+        width: 100vw;
+        background-color: #4b0a6b;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        color: white;
+      }
+
+      #survey-title {
+        color: white;
+      }
+
+      button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        background-color: blueviolet;
+        color: white;
+        cursor: pointer;
+      }
+
+      #quiz-screen {
+        border-radius: 20px;
+        width: 80vw;
+        background-color: rgb(250, 240, 255);
+      }
+
+      #quiz-screen .progress-bar {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 70px;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.096);
+      }
+
+      #quiz-screen .progress-bar > img {
+        width: 30px;
+        height: 30px;
+        margin: auto;
+      }
+
+      #quiz-screen .question-content {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+        padding: 10px;
+      }
+
+      #quiz-screen .question {
+        display: flex;
+        flex-direction: row;
+        width: 90%;
+        margin: auto;
+        gap: 20px;
+      }
+
+      #quiz-screen .question > img {
+        width: 50%;
+        border-radius: 30px;
+        object-fit: cover;
+        height: 50vh;
+      }
+
+      #quiz-options {
+        width: 50%;
+        display: grid;
+        grid-template-columns: auto;
+        align-items: start;
+        gap: 10px;
+      }
+
+      #quiz-question {
+        width: 80%;
+
+        margin: auto;
+      }
+
+      #quiz-options button {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 18px 20px;
+        border-radius: 5px;
+        background-color: white;
+        border: 1px solid #ca92e6;
+        color: black;
+        font-size: 1em;
+        margin: 0;
+        box-shadow: 3px 3px 0px #dba3f7;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 500;
+        text-align: left;
+      }
+
+      #quiz-options button > * {
+        margin: auto 0;
+      }
+
+      #quiz-options button:hover {
+        border: 1px solid #4b0a6b;
+        box-shadow: 3px 3px 0px #4b0a6b;
+        background-color: transparent;
+      }
+
+      #quiz-options .option-alpha {
+        color: grey;
+        border: 1px solid rgba(128, 128, 128, 0.445);
+        font-size: 10px;
+        padding: 5px 8px;
+        border-radius: 5px;
+      }
+
+      #quiz-options .selected {
+        border: 1px solid #4b0a6b;
+        box-shadow: 3px 3px 0px #4b0a6b;
+        background-color: transparent;
+      }
+
+      #navigation-buttons {
+        padding-top: 10px;
+      }
+
+      #navigation-buttons,
+      #result-nav {
+        padding: 20px 80px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      #prev-question-btn,
+      #retry {
+        background: linear-gradient(0deg, #fbeff0, #fbeff0),
+          linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.16) 100%
+          );
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        box-shadow: 0px -3px 0px 0px #efc4c8 inset;
+        color: #ff143a;
+        font-weight: 700;
+      }
+
+      #start-quiz-btn,
+      #next-question-btn,
+      #submit-email-btn,
+      #submit-quiz-btn,
+      #home,
+      #share-result {
+        background: linear-gradient(0deg, #dc4e5d, #dc4e5d),
+          linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.16) 100%
+          );
+        border: 0.5px solid;
+
+        border-image-source: linear-gradient(180deg, #f0b2b9 0%, #f07a87 100%);
+
+        box-shadow: 0px -3px 0px 0px #e3838d inset;
+        color: white;
+        padding: 10px 20px;
+        font-weight: 700;
+        border-radius: 5px;
+      }
+
+      button.disabled {
+        background: linear-gradient(0deg, #36363636, #3d3d3d2c);
+        box-shadow: 0px -3px 0px 0px #27272748 inset;
+        color: #2020207c;
+      }
+
+      #navigation-buttons .disabled {
+        background: linear-gradient(0deg, #36363636, #3d3d3d2c);
+        box-shadow: 0px -3px 0px 0px #27272748 inset;
+        color: #2020207c;
+      }
+
+      #email-screen {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      #user-email {
+        padding: 10px;
+      }
+
+      #results-screen-contain {
+        display: none;
+        background-color: white;
+        padding: 40px;
+        border-radius: 20px;
+        text-align: center;
+        width: 60vw;
+        flex-direction: column;
+      }
+
+      #result-screen {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: auto;
+      }
+
+      #result-screen img {
+        border-radius: 50%;
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+        border: 1px solid #13286e;
+        margin: auto;
+      }
+
+      #result-screen h2,
+      #result-screen h3,
+      #result-screen h5 {
+        color: #13286e;
+      }
+
+      #result-screen a {
+        background-color: #13286e;
+        padding: 5px 20px;
+        color: white;
+        border-radius: 20px;
+        margin: auto;
+      }
+
+      #result-screen h5 {
+        margin-bottom: -15px;
+      }
+
+      #result-nav {
+        margin-top: 20px;
+        border-top: 1px solid rgba(128, 128, 128, 0.199);
+        padding: 0;
+        padding-top: 20px;
+        display: flex;
+        flex-direction: row;
+      }
+
+      #result-nav a {
+        text-decoration: none;
+      }
+
+      #results-screen-contain p {
+        width: 70%;
+        margin: auto;
+      }
+
+      @media screen and (max-width: 900px) {
+        body {
+          background-color: white;
+        }
+
+        * {
+          box-sizing: border-box !important;
+        }
+        #quiz-container {
+          width: 100%;
+          background-color: white;
+        }
+        #quiz-screen {
+          width: 100%;
+          /* height: auto; */
+          height: 100vh;
+          background-color: white;
+        }
+
+        #quiz-screen .progress-bar {
+          width: 90%;
+          margin: auto;
+          padding: 20px;
+          justify-content: center;
+          box-sizing: border-box;
+        }
+
+        #survey-list {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+        }
+
+        #survey-list > div {
+          margin: auto;
+        }
+        #progress-container {
+          /* width: 60%; */
+          box-sizing: border-box;
+        }
+        #quiz-screen .question-content {
+          flex-direction: column;
+          padding: 20px;
+        }
+
+        #quiz-screen .question {
+          flex-direction: column;
+          width: 100%;
+          justify-content: center;
+        }
+
+        #quiz-screen .question > img {
+          width: 100%;
+          height: 150px;
+        }
+        #quiz-screen .question > .buttons {
+          width: 100%;
+        }
+
+        #quiz-question {
+          font-weight: 500;
+          width: 90%;
+          margin: auto;
+        }
+
+        #quiz-options {
+          width: 100%;
+        }
+
+        #quiz-options button {
+          padding: 10px 15px;
+        }
+
+        #quiz-options button > * {
+          margin: auto 0 !important;
+        }
+
+        #quiz-options .option-alpha {
+          padding: 2px 5px;
+        }
+
+        #navigation-buttons {
+          width: 100%;
+          box-sizing: border-box;
+          border-top: 1px solid rgba(128, 128, 128, 0.199);
+        }
+
+        #results-screen-contain {
+          width: 100%;
+        }
+
+        #results-screen-contain p {
+          width: 80%;
+          line-height: 1em;
+          margin: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="quiz-container">
+      <!-- Survey List Page -->
+      <div id="survey-list-page">
+        <div id="filter">
+          <button id="edu" class="active">Educative</button>
+          <button id="ent">Entertaining</button>
+        </div>
+        <div id="survey-list"></div>
+      </div>
+
+      <!-- Welcome Screen -->
+      <div id="welcome-screen" style="display: none">
+        <h1 id="survey-title"></h1>
+        <button id="start-quiz-btn">Play the quiz ></button>
+      </div>
+
+      <!-- Quiz Screen -->
+      <div id="quiz-screen" style="display: none">
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+          <div id="progress-container">
+            <div id="progress-bar"></div>
+          </div>
+          <a href="https://staging.msrepresented.com/quizzes">
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/phone-nums.appspot.com/o/global%2Fclose-circle.png?alt=media&token=7afdbb8c-884d-4ac3-b070-b8f52c2da238"
+              alt="close"
+            />
+          </a>
+        </div>
+
+        <!-- Question -->
+        <div class="question-content">
+          <h2 id="quiz-question"></h2>
+          <div class="question">
+            <img src="/assets/question-img.png" alt="" id="quiz-image" />
+            <div class="buttons" id="quiz-options">
+              <button id="a-btn">
+                <span id="optiona"></span> <span class="option-alpha">A</span>
+              </button>
+              <button id="b-btn">
+                <span id="optionb"></span> <span class="option-alpha">B</span>
+              </button>
+              <button id="c-btn">
+                <span id="optionc"></span> <span class="option-alpha">C</span>
+              </button>
+              <button id="d-btn">
+                <span id="optiond"></span><span class="option-alpha">D</span>
+              </button>
+              <button id="e-btn">
+                <span id="optione"></span><span class="option-alpha">E</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div id="navigation-buttons">
+          <button id="prev-question-btn" style="display: none">Previous</button>
+          <button id="next-question-btn" style="display: none">Next</button>
+          <button id="submit-quiz-btn" style="display: none">Submit</button>
+        </div>
+      </div>
+
+      <!-- Email Collection Screen -->
+      <div id="email-screen" style="display: none">
+        <h2>Almost Done!</h2>
+        <p>Please enter your email to see your results:</p>
+        <input
+          type="email"
+          id="user-email"
+          placeholder="Enter your email"
+          required
+        />
+        <button id="submit-email-btn">Submit</button>
+      </div>
+
+      <!-- Result Screen -->
+      <div id="results-screen-contain">
+        <button
+          id="share-result"
+          style="
+            margin-left: auto;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            display: none;
+          "
+        >
+          Share Result
+        </button>
+        <div id="result-screen" style="display: none">
+          <h3>Here are your Results</h3>
+          <img id="result-image" src="" alt="Result Image" width="200" />
+          <h5>You're</h5>
+          <h3 id="result-text"></h3>
+          <p id="description"></p>
+          <a href="" id="result-link"></a>
+        </div>
+        <div id="result-nav">
+          <button id="retry">Retry Quiz</button>
+          <a id="home" href="https://staging.msrepresented.com/quizzes"
+            >Back to Quizzes</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      // Firebase Configuration
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js'
+      import {
+        getFirestore,
+        addDoc,
+        collection,
+        getDocs,
+        query,
+        where
+      } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js'
+      import {
+        getStorage,
+        ref,
+        uploadBytes,
+        getDownloadURL
+      } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js'
+
+      // Firebase initialization
+      const firebaseConfig = {
+      
+      }
+      const app = initializeApp(firebaseConfig)
+      const db = getFirestore(app)
+
+      // DOM Elements
+      const surveyListElem = document.getElementById('survey-list')
+      const welcomeElem = document.getElementById('welcome-screen')
+      const questionElem = document.getElementById('quiz-screen')
+      const resultElem = document.getElementById('result-screen')
+      const emailInputElem = document.getElementById('user-email')
+      const submitEmailBtn = document.getElementById('submit-email-btn')
+      const startQuizBtn = document.getElementById('start-quiz-btn')
+      const nextQuestionBtn = document.getElementById('next-question-btn')
+      const prevQuestionBtn = document.getElementById('prev-question-btn')
+      const submitQuizBtn = document.getElementById('submit-quiz-btn')
+      const progressBarElem = document.getElementById('progress-bar')
+      const surveyPage = document.getElementById('survey-list-page')
+      const edu = document.getElementById('edu')
+      const ent = document.getElementById('ent')
+
+      // State
+      let selectedSurvey = null
+      let questionsList = []
+      let currentQuestionIndex = 0
+      let userResponses = []
+      let email = ''
+      let filter = 'educative'
+
+      // filter listeners
+      edu.addEventListener('click', () => {
+        filter = 'educative'
+        edu.classList.add('active')
+        ent.classList.remove('active')
+        loadSurveys()
+      })
+
+      ent.addEventListener('click', () => {
+        filter = 'entertaining'
+        edu.classList.remove('active')
+        ent.classList.add('active')
+        loadSurveys()
+      })
+
+      // Load all surveys
+      async function loadSurveys() {
+        const surveysSnapshot = await getDocs(collection(db, 'surveys'))
+        surveyListElem.innerHTML = '' // Clear any existing surveys
+        let survey
+
+        surveysSnapshot.forEach(doc => {
+          const surv = doc.data()
+
+          if (surv.status == 'published') {
+            if (surv.category == filter) {
+              survey = surv
+
+              const survCon = document.createElement('div')
+
+              survCon.innerHTML = `
+    <img src="${surv.featuredImageUrl}" alt="featured image">
+    <h5> ${surv.title} </h5>
+    `
+              survCon.addEventListener('click', () =>
+                selectSurvey({ ...surv, id: doc.id })
+              )
+              surveyListElem.appendChild(survCon)
+            }
+          }
+        })
+      }
+
+      // Select a survey
+      function selectSurvey(survey) {
+        selectedSurvey = survey
+        document.getElementById('quiz-container').classList.add('game-started')
+        welcomeElem.style.display = 'flex'
+        questionElem.style.display = 'none'
+        resultElem.style.display = 'none'
+        surveyListElem.style.display = 'none'
+        surveyPage.style.display = 'none'
+        document.getElementById('survey-title').innerText = selectedSurvey.title
+      }
+
+      // Start quiz for selected survey
+      startQuizBtn.addEventListener('click', async () => {
+        currentQuestionIndex = 0
+        userResponses = []
+        await loadQuestionsForSurvey(selectedSurvey.title) // Use survey id for filtering
+        if (questionsList.length > 0) {
+          showQuestion()
+          updateProgressBar()
+        } else {
+          alert('No questions available for this survey.')
+        }
+      })
+
+      // Load questions for the selected survey
+      async function loadQuestionsForSurvey(surveyTitle) {
+        const questionsSnapshot = await getDocs(collection(db, 'questions'))
+
+        questionsList = []
+
+        questionsSnapshot.forEach(doc => {
+          if (doc.data().surveyId === surveyTitle) {
+            questionsList.push(doc.data())
+          }
+        })
+      }
+
+      const selectedOpt = []
+
+      // Display the current question and attach event listeners
+      function showQuestion() {
+        if (currentQuestionIndex >= questionsList.length) {
+          showEmailInput()
+          return
+        }
+
+        const currentQuestion = questionsList[currentQuestionIndex]
+
+        // Set the question text
+        questionElem.querySelector('#quiz-question').innerText =
+          currentQuestion.text
+        const quizImage = document.getElementById('quiz-image')
+        quizImage.src = currentQuestion.imageUrl
+        // Get the button elements by their IDs
+        const aBtn = document.getElementById('a-btn')
+        const bBtn = document.getElementById('b-btn')
+        const cBtn = document.getElementById('c-btn')
+        const dBtn = document.getElementById('d-btn')
+        const eBtn = document.getElementById('e-btn')
+
+        // Get the options elements by their IDs
+        const optionA = document.getElementById('optiona')
+        const optionB = document.getElementById('optionb')
+        const optionC = document.getElementById('optionc')
+        const optionD = document.getElementById('optiond')
+        const optionE = document.getElementById('optione')
+
+        // Function to handle button display and event assignment
+        function configureButton(
+          option,
+          buttonElem,
+          optionValue,
+          optionLetter
+        ) {
+          if (optionValue && optionValue.trim() !== '') {
+            buttonElem.style.display = 'flex' // Show the button
+            option.innerText = optionValue // Set the option text
+            buttonElem.onclick = () => {
+              if (selectedOpt.length) {
+                console.log(selectedOpt)
+                selectedOpt[0].classList.remove('selected')
+                selectedOpt.pop()
+
+                selectedOpt.push(buttonElem)
+                selectedOpt[0].classList.add('selected')
+              } else {
+                selectedOpt.push(buttonElem)
+                selectedOpt[0].classList.add('selected')
+              }
+              answerQuestion(optionLetter, optionValue, buttonElem)
+            } // Assign event
+          } else {
+            buttonElem.style.display = 'none' // Hide the button if option is undefined or empty
+          }
+        }
+
+        // Configure buttons for available options
+        configureButton(optionA, aBtn, currentQuestion.optionA, 'A')
+        configureButton(optionB, bBtn, currentQuestion.optionB, 'B')
+        configureButton(optionC, cBtn, currentQuestion.optionC, 'C')
+        configureButton(optionD, dBtn, currentQuestion.optionD, 'D')
+        configureButton(optionE, eBtn, currentQuestion.optionE, 'E')
+
+        // Update buttons visibility for navigation
+        if (currentQuestionIndex <= 0) {
+          prevQuestionBtn.ariaDisabled = true
+          prevQuestionBtn.classList.add('disabled')
+        } else {
+          prevQuestionBtn.classList.remove('disabled')
+        }
+
+        prevQuestionBtn.style.display =
+          currentQuestionIndex > 0 ? 'inline-block' : 'inline-block'
+        nextQuestionBtn.style.display =
+          currentQuestionIndex < questionsList.length - 1
+            ? 'inline-block'
+            : 'none'
+        submitQuizBtn.style.display =
+          currentQuestionIndex === questionsList.length - 1
+            ? 'inline-block'
+            : 'none'
+
+        // Show the quiz screen and hide the welcome screen
+        welcomeElem.style.display = 'none'
+        questionElem.style.display = 'block'
+        resultElem.style.display = 'none'
+
+        updateProgressBar()
+      }
+
+      // Update the progress bar
+      function updateProgressBar() {
+        const progressPercentage =
+          ((currentQuestionIndex + 1) / questionsList.length) * 100
+        progressBarElem.style.width = `${progressPercentage}%`
+      }
+
+      // Store user's selected option in userResponses array
+      function answerQuestion(optionLetter, optionValue, buttonElem) {
+        userResponses[currentQuestionIndex] = {
+          optionLetter, // 'A', 'B', 'C', etc.
+          optionValue // Actual value of the selected option (e.g., 'Option Text')
+        }
+
+        console.log(
+          `Question ${
+            currentQuestionIndex + 1
+          }: Selected Option - ${optionLetter}: ${optionValue}`
+        )
+      }
+
+      // Navigate to the next question
+      nextQuestionBtn.addEventListener('click', () => {
+        if (!userResponses[currentQuestionIndex]) {
+          alert('please select an option')
+          return
+        }
+        if (currentQuestionIndex < questionsList.length - 1) {
+          currentQuestionIndex++
+          selectedOpt[0].classList.remove('selected')
+          selectedOpt.pop()
+          showQuestion()
+        }
+      })
+
+      // Navigate to the previous question
+      prevQuestionBtn.addEventListener('click', () => {
+        if (currentQuestionIndex > 0) {
+          currentQuestionIndex--
+          showQuestion()
+        }
+      })
+
+      // Submit the quiz
+      submitQuizBtn.addEventListener('click', () => {
+        if (!userResponses[currentQuestionIndex]) {
+          alert('please select an option')
+          return
+        }
+
+        showResults()
+      })
+
+      // Submit email and show results
+      submitEmailBtn.addEventListener('click', () => {
+        email = emailInputElem.value
+        if (!email) {
+          alert('Please enter your email')
+          return
+        }
+        showResults()
+      })
+
+      // Show results based on responses
+      function showResults() {
+        document.getElementById('quiz-screen').style.display = 'none'
+
+        const result = calculateResult()
+        resultElem.innerHTML = `
+    <h3>Here are your results</h3>
+    <img src="${result.gradingImage}" alt="Result Image" width="200">
+    <h5>You are</h5>
+    <h2> ${result.gradingCriteria}</h2>
+    <p>${result.description}</p>
+    <a href="${result.link}" target="_blank">Read More here </a>
+  `
+        document.getElementById('results-screen-contain').style.display = 'flex'
+        resultElem.style.display = 'flex'
+      }
+
+      // Calculate the result based on user responses
+      function calculateResult() {
+        const count = {}
+
+        // Count occurrences of each selected option letter
+        userResponses.forEach(response => {
+          const optionLetter = response.optionLetter
+          count[optionLetter] = (count[optionLetter] || 0) + 1
+        })
+
+        // Determine the most frequent option
+        let mostFrequentOption = null
+        let maxCount = 0
+        for (const option in count) {
+          if (count[option] > maxCount) {
+            maxCount = count[option]
+            mostFrequentOption = option
+          }
+        }
+
+        console.log(selectedSurvey)
+
+        // Dynamically retrieve grading based on the most frequent answer
+        const gradingCriteriaKeys = [
+          'gradingCriteria1',
+          'gradingCriteria2',
+          'gradingCriteria3',
+          'gradingCriteria4',
+          'gradingCriteria5'
+        ]
+        const gradingImageKeys = [
+          'gradingImage1',
+          'gradingImage2',
+          'gradingImage3',
+          'gradingImage4',
+          'gradingImage5'
+        ]
+        const gradingDesckeys = ['d1', 'd2', 'd3', 'd4', 'd5']
+        const gradingLinkKeys = ['l1', 'l2', 'l3', 'l4', 'l5']
+
+        const optionIndex = mostFrequentOption.charCodeAt(0) - 65 // 'A' => 0, 'B' => 1, 'C' => 2, etc.
+
+        // If grading criteria and images exist for this index
+        if (selectedSurvey[gradingCriteriaKeys[optionIndex]]) {
+          return {
+            gradingCriteria: selectedSurvey[gradingCriteriaKeys[optionIndex]],
+            gradingImage: selectedSurvey[gradingImageKeys[optionIndex]],
+            description: selectedSurvey[gradingDesckeys[optionIndex]],
+            link: selectedSurvey[gradingLinkKeys[optionIndex]]
+          }
+        } else {
+          // Default fallback if grading criteria do not exist
+          return {
+            gradingCriteria: 'No Criteria Available',
+            gradingImage: 'https://via.placeholder.com/150', // Default image URL
+            description: `You selected mostly option ${mostFrequentOption}, but no specific grading exists for this survey.`
+          }
+        }
+      }
+
+      const startAfreshBtn = document.getElementById('retry')
+
+      startAfreshBtn.addEventListener('click', () => {
+        document.getElementById('results-screen-contain').style.display = 'none'
+        resultElem.style.display = 'none'
+        showQuestion()
+      })
+
+      // Load all surveys when the page loads
+      loadSurveys()
+    </script>
+  </body>
+</html>
